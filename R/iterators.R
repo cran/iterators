@@ -29,36 +29,40 @@ iter.default <- function(obj, checkFunc=function(...) TRUE, recycle=FALSE, ...) 
   state <- new.env()
   state$i <- 0L
   state$obj <- obj
-  it <- list(state=state, checkFunc=checkFunc, recycle=recycle)
+  n <- length(obj)
+  it <- list(state=state, length=n, checkFunc=checkFunc, recycle=recycle)
   class(it) <- c('containeriter', 'iter')
   it
 }
 
 # allow a matrix to be iterated over in different ways
-iter.matrix <- function(obj, by=c('column', 'cell', 'row'), chunksize=1L, checkFunc=function(...) TRUE,
-                        recycle=FALSE, ...) {
+iter.matrix <- function(obj, by=c('column', 'cell', 'row'), chunksize=1L,
+                        checkFunc=function(...) TRUE, recycle=FALSE, ...) {
   by <- match.arg(by)
-  if((chunksize > 1L) && (by=='cell')) {
+  if ((chunksize > 1L) && (by=='cell')) {
     warning("Chunksize greater than 1 not allowed when using by='cell'\n  Setting chunksize=1")
     chunksize <- 1L
   }
   state <- new.env()
   state$i <- 0L
   state$obj <- obj
-  it <- list(state=state, by=by, checkFunc=checkFunc, recycle=recycle, chunksize=chunksize)
+  n <- switch(by, column=ncol(obj), row=nrow(obj), length(obj))
+  it <- list(state=state, by=by, length=n, checkFunc=checkFunc,
+             recycle=recycle, chunksize=chunksize)
   class(it) <- c('matrixiter', 'iter')
   it
 }
 
 # allow a data frame to be iterated over in different ways
-iter.data.frame <- function(obj, by=c('column', 'row'), checkFunc=function(...) TRUE,
-                            recycle=FALSE, ...) {
+iter.data.frame <- function(obj, by=c('column', 'row'),
+                            checkFunc=function(...) TRUE, recycle=FALSE, ...) {
   by <- match.arg(by)
   state <- new.env()
   state$i <- 0L
   state$obj <- obj
-  it <- list(state=state, by=by, length=switch(by, row=nrow(obj), length(obj)),
-             checkFunc=checkFunc, recycle=recycle)
+  n <- switch(by, column=length(obj), nrow(obj))
+  it <- list(state=state, by=by, length=n, checkFunc=checkFunc,
+             recycle=recycle)
   class(it) <- c('dataframeiter', 'iter')
   it
 }
@@ -80,27 +84,32 @@ getIterVal <- function(obj, plus, ...) {
 }
 
 getIterVal.containeriter <- function(obj, plus=0L, ...) {
-  return(obj$state$obj[[obj$state$i+plus]])
+  i <- obj$state$i + plus
+  if (i > obj$length)
+    stop('SubscriptOutOfBounds', call.=FALSE)
+  obj$state$obj[[i]]
 }
 
 getIterVal.matrixiter <- function(obj, plus=0L, ...) {
-  return(switch(obj$by,
-         column = obj$state$obj[,
-           (obj$state$i+plus):
-           min(obj$state$i+plus+(obj$chunksize-1L),ncol(obj$state$obj)),
-           drop=FALSE],
-         row = obj$state$obj[(obj$state$i+plus):
-           min(obj$state$i+plus+(obj$chunksize-1L),nrow(obj$state$obj)), ,
-           drop=FALSE],
-         obj$state$obj[[obj$state$i+plus]]))
+  i <- obj$state$i + plus
+  n <- obj$length
+  if (i > n)
+    stop('SubscriptOutOfBounds', call.=FALSE)
+  j <- i + obj$chunksize - 1L
+  switch(obj$by,
+         column=obj$state$obj[, i:min(j, n), drop=FALSE],
+         row=obj$state$obj[i:min(j, n), , drop=FALSE],
+         obj$state$obj[[i]])
 }
 
 getIterVal.dataframeiter <- function(obj, plus=0L, check=TRUE, ...) {
-  if ((obj$state$i + plus) > obj$length)
-    stop('StopIteration',call.=FALSE)
-  return(switch(obj$by,
-         row=obj$state$obj[obj$state$i+plus, ],
-         obj$state$obj[, obj$state$i+plus]))
+  i <- obj$state$i + plus
+  n <- obj$length
+  if (i > n)
+    stop('StopIteration', call.=FALSE)
+  switch(obj$by,
+         column=obj$state$obj[, i],
+         obj$state$obj[i, ])
 }
 
 nextElem <- function(obj, ...) {
@@ -117,7 +126,7 @@ nextElem.containeriter <- function(obj, ...) {
       obj$state$i <- obj$state$i + 1L
     }, error=function(e) {
       if (any(nzchar(e$message))) {
-        if (identical(e$message, "subscript out of bounds")) {
+        if (identical(e$message, "SubscriptOutOfBounds")) {
           if (obj$recycle) {
             obj$state$i <- 0L
           }
@@ -146,7 +155,7 @@ nextElem.matrixiter <- function(obj, ...) {
       obj$state$i <- obj$state$i + obj$chunksize
     }, error=function(e) {
       if (any(nzchar(e$message))) {
-        if (identical(e$message, "subscript out of bounds") ||
+        if (identical(e$message, "SubscriptOutOfBounds") ||
             identical(e$message, "attempt to select more than one element")) {
           if (obj$recycle) {
             obj$state$i <- 0L
