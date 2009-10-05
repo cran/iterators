@@ -1,7 +1,7 @@
 Package: iterators
 Type: Package
 Title: Iterator construct for R
-Version: 1.0.2
+Version: 1.0.3
 Author: REvolution Computing
 Maintainer: REvolution Computing <packages@REvolution-computing.com>
 Description: Support for iterators, which allow a programmer to
@@ -10,6 +10,6 @@ Description: Support for iterators, which allow a programmer to
 Depends: R (>= 2.5.0), utils
 Suggests: foreach
 License: Apache License (== 2.0)
-Packaged: 2009-07-20 21:34:01 UTC; weston
+Packaged: 2009-10-05 20:31:21 UTC; weston
 Repository: CRAN
-Date/Publication: 2009-07-21 18:47:43
+Date/Publication: 2009-10-06 06:56:52
