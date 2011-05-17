@@ -60,7 +60,7 @@
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 
 \title{Using The {\tt iterators} Package}
-\author{Rich Calaway \\ richcalaway@revolution-computing.com}
+\author{Rich Calaway \\ doc@revolutionanalytics.com}
 
 
 \begin{document}
@@ -108,9 +108,9 @@ For practical applications, iterators can be paired with \texttt{foreach} to obt
 > library(foreach)
 \end{Sinput}
 \begin{Soutput}
-foreach: simple, scalable parallel programming from REvolution Computing
-Use REvolution R for scalability, fault tolerance and more.
-http://www.revolution-computing.com
+foreach: simple, scalable parallel programming from Revolution Analytics
+Use Revolution R for scalability, fault tolerance and more.
+http://www.revolutionanalytics.com
 \end{Soutput}
 \begin{Sinput}
 > x <- matrix(rnorm(1e+06), ncol = 10000)

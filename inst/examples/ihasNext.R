@@ -2,7 +2,7 @@ library(iterators)
 
 # This example was originally written and contributed
 # by Hadley Wickham, with minor modifications by
-# REvolution Computing
+# Revolution Analytics
 
 # Define a hasNext generic function
 hasNext <- function(obj, ...) {

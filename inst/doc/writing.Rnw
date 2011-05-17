@@ -60,7 +60,7 @@
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 
 \title{Writing Custom Iterators}
-\author{Steve Weston \\ steve@revolution-computing.com}
+\author{Steve Weston \\ doc@revolutionanalytics.com}
 
 
 \begin{document}
@@ -118,7 +118,7 @@ write your own custom iterator.  Fortunately, that is fairly easy to do.
 
 \section{What methods are needed for an iterator?}
 
-Basically, an iterator is an S3 object whose base class is ``iter'', and
+Basically, an iterator is an S3 object whose base class is \texttt{iter}, and
 has \texttt{iter} and \texttt{nextElem} methods.  The purpose of the
 \texttt{iter} method is to return an iterator for the specified object.
 For iterators, that usually just means returning itself, which seems odd
@@ -138,7 +138,7 @@ choose.  Thus, we can pass vectors, lists, or iterators to
 exactly the same way.
 
 The \texttt{iterators} package comes with an \texttt{iter} method
-defined for the ``iter'' class that simply returns itself.  That is
+defined for the \texttt{iter} class that simply returns itself.  That is
 usually all that is needed for an iterator.  However, if you want to
 create an iterator for some existing class, you can do that by writing
 an \texttt{iter} method that returns an appropriate iterator.  That
@@ -149,7 +149,7 @@ returns an iterator.  You can choose whichever method is most natural.
 
 The most important method required for iterators is \texttt{nextElem}.
 This simply returns the next value, or throws an error.  Calling the
-\texttt{stop} function with the string 'StopIteration' indicates that
+\texttt{stop} function with the string \texttt{'StopIteration'} indicates that
 there are no more values available in the iterator.
 
 Now before we write our own iterator, let's try calling the
@@ -171,7 +171,7 @@ tryCatch(nextElem(it), error=function(e) e)
 @
 
 As you can see, it is possible to call these methods manually, but it's
-somewhat awkward, since you have to handle the ``StopIteration'' error.
+somewhat awkward, since you have to handle the \texttt{'StopIteration'} error.
 Later on, we'll see one solution to this difficulty, although, in
 general, you don't call these method explicitly.
 
@@ -181,9 +181,9 @@ It's time to show the implementation of a very simple iterator.  Although I've
 made it sound like you have to write your own \texttt{iter} and
 \texttt{nextElem} methods, you can inherit them.  In fact, that's what
 all of the following examples do.  I do that by inheriting
-from the ``abstractiter'' class.  The ``abstractiter'' class uses the standard
-\texttt{iter} method which returns itself, and defines a \texttt{nextElem}
-method that calls the ``nextElem'' element of the object.
+from the \texttt{abstractiter} class.  The \texttt{abstractiter} class uses 
+the standard \texttt{iter} method which returns itself, and defines a 
+\texttt{nextElem} method that calls the \texttt{nextElem} element of the object.
 Let's take a look at the implementation of these two methods:
 
 <<nextElem.abstractiter>>=
@@ -203,9 +203,9 @@ iforever <- function(x) {
 }
 @
 
-Note that I called the internal function ``nextEl'' rather than
-``nextElem''.  I do that by convention to avoid shadowing the standard
-``nextElem'' generic function.  That causes problems when you want your
+Note that I called the internal function \texttt{nextEl} rather than
+\texttt{nextElem}.  I do that by convention to avoid masking the standard
+\texttt{nextElem} generic function.  That causes problems when you want your
 iterator to call the \texttt{nextElem} method of another iterator, which
 can be quite useful, as we'll see in a later example.
 
@@ -220,7 +220,7 @@ nextElem(it)
 @
 
 You can also get values from an iterator using \texttt{as.list}.  But
-since this is an infinite iterator, you need to use the ``n'' argument
+since this is an infinite iterator, you need to use the \texttt{n} argument
 to avoid using up a lot of memory and time:
 
 <<runiter1.part2>>=
@@ -237,12 +237,12 @@ This iterator is quite simple to implement, and possibly even
 useful.\footnote{Be careful how you use this iterator!  If you pass it
 to \texttt{foreach}, it will result in an infinite loop unless you pair
 it with a non-infinite iterator.  Also, {\em never} pass this to the
-\texttt{as.list} function without the ``n'' argument.} The iterator
+\texttt{as.list} function without the \texttt{n} argument.} The iterator
 returned by \texttt{iforever} is a list that has a single element named
-``nextElem'', whose value is a function that returns the value of
-\texttt{x}.  Because we are subclassing ``abstractiter'', we inherit a
+\texttt{nextElem}, whose value is a function that returns the value of
+\texttt{x}.  Because we are subclassing \texttt{abstractiter}, we inherit a
 \texttt{nextElem} method that will call this function, and because we
-are subclassing ``iter'', we inherit an \texttt{iter} method that will
+are subclassing \texttt{iter}, we inherit an \texttt{iter} method that will
 return itself.
 
 Of course, the reason this iterator is so simple is because it doesn't
@@ -253,7 +253,7 @@ stop.  Managing the state is usually the real trick to writing iterators.
 \section{A stateful iterator}
 
 Let's modify the previous iterator to put a limit on the number of values
-that it returns.  I'll call the new function ``irep'', and give it
+that it returns.  I'll call the new function \texttt{irep}, and give it
 another argument called \texttt{times}:
 
 <<iter2>>=
@@ -282,17 +282,18 @@ unlist(as.list(it))
 
 The real difference between \texttt{iforever} and \texttt{irep} is in the
 function that gets called by the \texttt{nextElem} method.  This function not
-only accesses the values of the variables ``x'' and ``times'', but it also
-modifies the value of ``times''.  This is accomplished by means of the
-``\verb=<<-='' \footnote{It's commonly believed that ``$<<-$'' is only used to set
-variables in the global environment, but that isn't true.  I think of it as an
-``inheriting'' assignment operator.} operator, and the magic of lexical
-scoping.  Technically, this kind of function is called a ``closure'', and is a
-somewhat advanced feature of \texttt{R}.  The important thing to remember is
-that \texttt{nextEl} is able to get the value of variables that were passed as
-arguments to \texttt{irep}, and it can modify those values using the ``\verb=<<-=''
-operator.  These are {\em not} global variables: they are defined in the
-enclosing environment of the \texttt{nextEl} function.  You can create as many
+only accesses the values of the variables \texttt{x} and \texttt{times}, but 
+it also modifies the value of \texttt{times}.  This is accomplished by means 
+of the ``\verb=<<-='' \footnote{It's commonly believed that ``$<<-$'' is only 
+used to set variables in the global environment, but that isn't true.  I think 
+of it as an {\em inheriting} assignment operator.} operator, and the magic of 
+lexical scoping.  Technically, this kind of function is called a 
+{\em closure}, and is a somewhat advanced feature of \texttt{R}.  The 
+important thing to remember is that \texttt{nextEl} is able to get the value 
+of variables that were passed as arguments to \texttt{irep}, and it can modify 
+those values using the ``\verb=<<-='' operator.  These are {\em not} global 
+variables: they are defined in the enclosing environment of the 
+\texttt{nextEl} function.  You can create as many
 iterators as you want using the \texttt{irep} function, and they will all work
 as expected without conflicts.
 
@@ -334,7 +335,7 @@ to split its argument into a specified number of pieces, and the
 \texttt{chunkSize} argument to split it into pieces of a specified
 maximum size.
 
-Let's create an ``ivector'' iterator to split a vector into three
+Let's create an \texttt{ivector} iterator to split a vector into three
 pieces using the \texttt{chunks} argument:
 
 <<runiter3>>=
@@ -363,7 +364,7 @@ solution to this problem is to add a method that indicates whether there
 is another value available in the iterator.  Then you can write a simple
 while loop that stops when there are no more values.
 
-One way to do that would be to define a new S3 method called ``hasNext''.
+One way to do that would be to define a new S3 method called \texttt{hasNext}.
 Here's the definition of a \texttt{hasNext} generic function:
 
 <<generichasnext>>=
@@ -373,7 +374,7 @@ hasNext <- function(obj, ...) {
 @
 
 We also need to define \texttt{hasNext} method for a iterator class
-that we'll call ``ihasNext'':
+that we'll call \texttt{ihasNext}:
 
 <<hasnextmethod>>=
 hasNext.ihasNext <- function(obj, ...) {
@@ -381,14 +382,14 @@ hasNext.ihasNext <- function(obj, ...) {
 }
 @
 
-As you can see, an ``ihasNext'' object must be a list with a ``hasNext''
-element that is a function.  That's the same technique that the
-``abstractiter'' class uses to implement the ``nextElem'' method.
+As you can see, an \texttt{ihasNext} object must be a list with a 
+\texttt{hasNext} element that is a function.  That's the same technique that 
+the \texttt{abstractiter} class uses to implement the \texttt{nextElem} method.
 
-Now we'll define a function, called ``ihasNext'', that takes an
-arbitrary iterator and returns returns an ``ihasNext'' iterator that
+Now we'll define a function, called \texttt{ihasNext}, that takes an
+arbitrary iterator and returns returns an \texttt{ihasNext} iterator that
 wraps the specified iterator.  That allows us to turn any iterator into
-an ``ihasNext'' iterator, thus providing it with a \texttt{hasNext}
+an \texttt{ihasNext} iterator, thus providing it with a \texttt{hasNext}
 method:\footnote{Thanks to Hadley Wickham for contributing this
 function, which I only hacked up a little.  You can also find this
 function, along with \texttt{hasNext} and \texttt{hasNext.ihasNext} in
@@ -436,7 +437,7 @@ value is saved.  That value is then passed to the user when
 you don't call \texttt{hasNext}, or if you call it multiple times before
 calling \texttt{nextElem}.
 
-So now we can easily create an ``icount'' iterator, and get its values
+So now we can easily create an \texttt{icount} iterator, and get its values
 in a while loop, without having to do any messy error handling:
 
 <<hasnextexample>>=
@@ -490,7 +491,7 @@ it <- irecycle(icount(3))
 unlist(as.list(it, n=9))
 @
 
-\section{Limiting inifinite iterators}
+\section{Limiting infinite iterators}
 
 I was tempted to add an argument to the \texttt{irecycle} function to
 limit the number of values that it returns, because sometimes you want
