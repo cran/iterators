@@ -1,7 +1,7 @@
 Package: iterators
 Type: Package
 Title: Iterator construct for R
-Version: 1.0.5
+Version: 1.0.6
 Author: Revolution Analytics
 Maintainer: Revolution Analytics <packages@revolutionanalytics.com>
 Description: Support for iterators, which allow a programmer to
@@ -12,6 +12,6 @@ Suggests: foreach, RUnit
 License: Apache License (== 2.0)
 Repository: CRAN
 Repository/R-Forge/Project: foreach
-Repository/R-Forge/Revision: 15
-Date/Publication: 2011-07-23 13:55:36
-Packaged: 2011-07-08 21:01:43 UTC; rforge
+Repository/R-Forge/Revision: 21
+Packaged: 2012-04-12 16:24:39 UTC; rforge
+Date/Publication: 2012-04-16 06:09:54
